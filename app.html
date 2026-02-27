@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marco Teórico - Guía Interactiva</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; }
+
+  header {
+    background: linear-gradient(135deg, #2b4590, #4a7fc1);
+    color: white; padding: 2rem 1.5rem; text-align: center;
+  }
+  header h1 { font-size: 1.6rem; margin-bottom: .4rem; }
+  header p { font-size: .95rem; opacity: .85; }
+
+  #progress-wrap { background: #e2e8f0; height: 8px; }
+  #progress-bar { background: #f6ad55; height: 8px; width: 0; transition: width .4s; }
+  #step-indicator { text-align: center; font-size: .8rem; color: #718096; padding: .4rem; }
+
+  #tabs { display: flex; overflow-x: auto; background: white; border-bottom: 2px solid #e2e8f0; }
+  .tab {
+    flex: 0 0 auto; padding: .7rem 1.1rem; cursor: pointer; font-size: .82rem;
+    color: #718096; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s;
+  }
+  .tab.active { color: #2b4590; border-color: #2b4590; font-weight: 600; }
+  .tab:hover { background: #f7fafc; }
+
+  #content { max-width: 820px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+  .section { display: none; animation: fadeIn .3s; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+
+  h2 { color: #2b4590; font-size: 1.25rem; margin-bottom: 1rem; display:flex; align-items:center; gap:.5rem; }
+  h3 { color: #4a7fc1; font-size: 1rem; margin: 1.2rem 0 .5rem; }
+  p, li { line-height: 1.7; font-size: .95rem; color: #2d3748; }
+  ul, ol { padding-left: 1.4rem; margin: .5rem 0; }
+  li { margin-bottom: .3rem; }
+
+  .card { background: white; border-radius: 10px; padding: 1.2rem 1.4rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .card.blue { border-left: 4px solid #4a7fc1; }
+  .card.orange { border-left: 4px solid #f6ad55; }
+  .card.green { border-left: 4px solid #68d391; }
+  .card.red { border-left: 4px solid #fc8181; }
+
+  .step-box { display: flex; gap: 1rem; align-items: flex-start; background: white; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: .8rem; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+  .step-num { background: #2b4590; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items:center; justify-content:center; font-weight: 700; font-size: .9rem; flex-shrink: 0; }
+  .step-content h4 { color: #2b4590; margin-bottom: .3rem; font-size: .95rem; }
+
+  .apa-box { background: #ebf4ff; border-radius: 8px; padding: 1rem 1.2rem; font-family: monospace; font-size: .88rem; line-height: 1.8; margin: .5rem 0 1rem; border: 1px solid #bee3f8; }
+  .apa-label { font-size: .75rem; color: #718096; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; font-family: sans-serif; }
+
+  .error-item { background: white; border-radius: 8px; margin-bottom: .7rem; box-shadow: 0 1px 5px rgba(0,0,0,.07); overflow: hidden; }
+  .error-header { display: flex; align-items: center; justify-content: space-between; padding: .8rem 1rem; cursor: pointer; gap: .5rem; }
+  .error-header span { font-size: .95rem; font-weight: 500; }
+  .error-body { display: none; padding: .8rem 1rem 1rem; border-top: 1px solid #e2e8f0; font-size: .9rem; }
+  .error-body.open { display: block; }
+  .badge-err { background: #fed7d7; color: #c53030; border-radius: 20px; padding: .2rem .6rem; font-size: .75rem; font-weight: 600; }
+
+  /* ── Plantilla con pestañas ── */
+  .plantilla-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.2rem; background: white; border-radius: 10px 10px 0 0; overflow: hidden; }
+  .ptab { flex: 1; text-align: center; padding: .7rem .5rem; cursor: pointer; font-size: .88rem; color: #718096; border-bottom: 3px solid transparent; transition: all .2s; font-weight: 500; }
+  .ptab.active { color: #2b4590; border-color: #2b4590; background: #f7fafc; font-weight: 700; }
+  .ptab:hover { background: #f7fafc; }
+  .ptab-icon { font-size: 1.1rem; display: block; margin-bottom: .1rem; }
+
+  .pview { display: none; }
+  .pview.active { display: block; }
+
+  /* campos plantilla */
+  .field-group { margin-bottom: 1rem; }
+  .field-group label { display: block; font-size: .85rem; font-weight: 600; color: #4a5568; margin-bottom: .3rem; }
+  .field-group textarea, .field-group input[type="text"] {
+    width: 100%; border: 1px solid #cbd5e0; border-radius: 8px;
+    padding: .7rem; font-size: .9rem; font-family: inherit; resize: vertical;
+    transition: border .2s; color: #2d3748;
+  }
+  .field-group textarea:focus, .field-group input:focus { outline: none; border-color: #4a7fc1; }
+  .field-hint { font-size: .78rem; color: #a0aec0; margin-top: .2rem; }
+
+  /* guía de llenado */
+  .guide-item { background: white; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,.07); overflow: hidden; }
+  .guide-header { display: flex; align-items: center; justify-content: space-between; padding: .9rem 1.1rem; cursor: pointer; background: #f7fafc; }
+  .guide-header-left { display: flex; align-items: center; gap: .6rem; }
+  .guide-num { background: #2b4590; color: white; border-radius: 50%; width: 26px; height: 26px; display:flex; align-items:center; justify-content:center; font-size: .8rem; font-weight: 700; flex-shrink:0; }
+  .guide-header span.gtitle { font-weight: 600; font-size: .93rem; color: #2b4590; }
+  .guide-arrow { font-size: .8rem; color: #718096; transition: transform .2s; }
+  .guide-arrow.open { transform: rotate(90deg); }
+  .guide-body { display: none; padding: 1rem 1.2rem; border-top: 1px solid #e2e8f0; }
+  .guide-body.open { display: block; }
+  .guide-what { font-size: .88rem; color: #4a5568; margin-bottom: .7rem; line-height: 1.6; }
+  .guide-tips { font-size: .83rem; color: #718096; margin-bottom: .8rem; }
+  .guide-tips li { margin-bottom: .25rem; }
+  .example-box { background: #fffbeb; border: 1px solid #f6e05e; border-radius: 8px; padding: .9rem 1rem; font-size: .87rem; line-height: 1.7; color: #744210; }
+  .example-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #b7791f; font-weight: 700; margin-bottom: .4rem; }
+
+  .quiz-q { background: white; border-radius: 10px; padding: 1.2rem; margin-bottom: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,.07); }
+  .quiz-q p { font-weight: 500; margin-bottom: .8rem; }
+  .quiz-opt { display: flex; align-items: center; gap: .6rem; padding: .5rem .8rem; border-radius: 7px; margin-bottom: .4rem; cursor: pointer; transition: background .2s; }
+  .quiz-opt:hover { background: #ebf4ff; }
+  .quiz-opt input { accent-color: #2b4590; }
+  .quiz-feedback { display: none; margin-top: .7rem; padding: .6rem .9rem; border-radius: 7px; font-size: .88rem; }
+  .quiz-feedback.correct { background: #c6f6d5; color: #22543d; display: block; }
+  .quiz-feedback.wrong { background: #fed7d7; color: #742a2a; display: block; }
+
+  .btn { background: #2b4590; color: white; border: none; border-radius: 8px; padding: .65rem 1.4rem; cursor: pointer; font-size: .9rem; font-weight: 600; transition: background .2s; margin-top: .5rem; }
+  .btn:hover { background: #1e3a7a; }
+  .btn.secondary { background: #e2e8f0; color: #4a5568; }
+  .btn.secondary:hover { background: #cbd5e0; }
+  .btn-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+
+  #nav-arrows { position: fixed; bottom: 1rem; right: 1rem; display: flex; gap: .5rem; }
+  .nav-btn { background: #2b4590; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,.2); transition: background .2s; }
+  .nav-btn:hover { background: #1e3a7a; }
+  .nav-btn:disabled { background: #a0aec0; cursor: default; }
+
+  #print-btn { position: fixed; bottom: 1rem; left: 1rem; background: #68d391; color: white; border: none; border-radius: 20px; padding: .5rem 1rem; cursor: pointer; font-size: .82rem; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  #print-btn:hover { background: #48bb78; }
+
+  @media print {
+    #tabs, #nav-arrows, #print-btn, #progress-wrap, #step-indicator { display: none; }
+    .section { display: block !important; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 Construcción del Marco Teórico</h1>
+  <p>Guía interactiva paso a paso · Metodología de la Investigación · Ciencias Sociales</p>
+</header>
+
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+<div id="step-indicator">Paso 1 de 6</div>
+
+<div id="tabs">
+  <div class="tab active" onclick="goTo(0)">1. ¿Qué es?</div>
+  <div class="tab" onclick="goTo(1)">2. Paso a paso</div>
+  <div class="tab" onclick="goTo(2)">3. APA 7</div>
+  <div class="tab" onclick="goTo(3)">4. Errores comunes</div>
+  <div class="tab" onclick="goTo(4)">5. Plantilla</div>
+  <div class="tab" onclick="goTo(5)">6. Ejercicio</div>
+</div>
+
+<div id="content">
+
+  <!-- S1 -->
+  <div class="section active" id="s0">
+    <h2>🔍 ¿Qué es el Marco Teórico y para qué sirve?</h2>
+    <div class="card blue">
+      <h3>Recuerda: la hipótesis es una solución anticipada</h3>
+      <p>Antes de construir el marco teórico, debes tener clara tu <strong>hipótesis</strong>: es la respuesta provisional que propones al problema de investigación. El marco teórico existe para <strong>sustentar y justificar</strong> esa hipótesis con evidencia teórica y empírica.</p>
+    </div>
+    <div class="card orange">
+      <h3>¿Qué es el Marco Teórico?</h3>
+      <p>Es el conjunto organizado de teorías, conceptos, modelos y antecedentes de investigación que:</p>
+      <ul>
+        <li>Explican el fenómeno que estudias</li>
+        <li>Justifican tu hipótesis desde la literatura científica</li>
+        <li>Delimitan el enfoque teórico de tu investigación</li>
+        <li>Demuestran que conoces el campo de estudio</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>La relación clave que debes visualizar siempre</h3>
+      <p style="text-align:center; font-size:1.1rem; padding:.5rem 0;">🔎 <strong>Problema</strong> → 💡 <strong>Hipótesis</strong> → 📚 <strong>Marco Teórico</strong></p>
+      <p>El marco teórico no es un resumen de todo lo que existe sobre el tema. Es una argumentación teórica que dice: <em>"La hipótesis que propongo tiene sentido porque la literatura científica sostiene que..."</em></p>
+    </div>
+    <div class="card red">
+      <h3>⚠️ Lo que NO es el marco teórico</h3>
+      <ul>
+        <li>No es un <strong>glosario</strong> de términos</li>
+        <li>No es <strong>copiar y pegar</strong> párrafos de libros o artículos</li>
+        <li>No es una <strong>introducción general</strong> al tema sin conexión con tu hipótesis</li>
+        <li>No es una lista de referencias sin análisis</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="section" id="s1">
+    <h2>🗺️ Paso a paso: cómo construir el Marco Teórico</h2>
+    <div class="step-box"><div class="step-num">1</div><div class="step-content"><h4>Identifica las variables o conceptos clave de tu hipótesis</h4><p>Extrae de tu hipótesis las palabras o ideas centrales. Esos conceptos son los <em>ejes teóricos</em> que necesitas desarrollar. Ejemplo: si tu hipótesis habla de "pobreza" y "rendimiento escolar", esos dos conceptos deben estar teóricamente fundamentados.</p></div></div>
+    <div class="step-box"><div class="step-num">2</div><div class="step-content"><h4>Busca fuentes académicas confiables</h4><p>Utiliza bases de datos como <strong>Google Scholar, Redalyc, Dialnet, JSTOR</strong> o la biblioteca de tu institución. Prioriza artículos científicos, libros académicos y tesis doctorales. Evita Wikipedia, blogs o páginas sin respaldo académico.</p></div></div>
+    <div class="step-box"><div class="step-num">3</div><div class="step-content"><h4>Lee, analiza y selecciona — no copies</h4><p>Lee las fuentes con un propósito claro: entender qué dice el autor, cómo se relaciona con tu hipótesis y si lo apoya o contradice. Toma notas en tus <strong>propias palabras</strong>. La paráfrasis argumentada es la base del marco teórico.</p></div></div>
+    <div class="step-box"><div class="step-num">4</div><div class="step-content"><h4>Organiza el contenido por ejes temáticos</h4><p>Agrupa la información por temas o subtemas, no por autor ni por orden en que las encontraste. Una estructura lógica sugerida: <em>antecedentes → definición de conceptos → teorías que sustentan la relación → estudios previos relacionados.</em></p></div></div>
+    <div class="step-box"><div class="step-num">5</div><div class="step-content"><h4>Redacta con argumentación propia</h4><p>Escribe párrafos donde TÚ eres quien argumenta, y las fuentes son el respaldo. Nunca empieces un párrafo con "Según autor X..." de forma repetitiva. El texto debe tener <em>tu voz académica</em> sustentada en citas.</p></div></div>
+    <div class="step-box"><div class="step-num">6</div><div class="step-content"><h4>Conecta explícitamente con tu hipótesis</h4><p>Al cerrar cada apartado, haz explícita la relación con tu hipótesis. El lector debe entender por qué cada sección está ahí y cómo contribuye a sostener tu solución anticipada al problema.</p></div></div>
+    <div class="card orange" style="margin-top:1rem;">
+      <h3>📝 Ejemplo práctico</h3>
+      <p><strong>Hipótesis:</strong> "El nivel socioeconómico de la familia influye negativamente en el rendimiento académico de los estudiantes de secundaria en zonas rurales de México."</p>
+      <p style="margin-top:.5rem;"><strong>Ejes del marco teórico:</strong></p>
+      <ul>
+        <li>Definición y medición del nivel socioeconómico (teoría del capital cultural, Bourdieu)</li>
+        <li>Rendimiento académico: factores y modelos explicativos</li>
+        <li>Desigualdad educativa en contextos rurales en México</li>
+        <li>Estudios previos sobre la relación entre ambas variables</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="section" id="s2">
+    <h2>📝 Cómo citar y referenciar en APA 7</h2>
+    <div class="card blue"><p>En APA 7 existen dos elementos inseparables: la <strong>cita en el texto</strong> y la <strong>referencia</strong> al final. Si citas en el texto, debes tener la referencia completa, y viceversa.</p></div>
+    <h3>📌 Cita textual (menos de 40 palabras)</h3>
+    <p>Va entre comillas dentro del párrafo, seguida del autor, año y página.</p>
+    <div class="apa-label">Ejemplo en el texto</div>
+    <div class="apa-box">"La pobreza no es solo la carencia de ingresos, sino la privación de capacidades básicas" (Sen, 1999, p. 114).</div>
+    <h3>📌 Cita textual larga (40 palabras o más)</h3>
+    <p>Va en bloque, con sangría de 1.27 cm, sin comillas.</p>
+    <div class="apa-label">Ejemplo en el texto</div>
+    <div class="apa-box" style="padding-left:2rem;">El rendimiento escolar es resultado de múltiples factores que interactúan de manera compleja: el entorno familiar, la calidad docente, los recursos disponibles en la escuela y las condiciones socioeconómicas del estudiante constituyen variables que se potencian o inhiben mutuamente en el proceso de aprendizaje. (García, 2018, pp. 45-46)</div>
+    <h3>📌 Paráfrasis (lo más recomendable)</h3>
+    <div class="apa-label">Ejemplo en el texto</div>
+    <div class="apa-box">De acuerdo con Bourdieu (1979), el capital cultural acumulado en el hogar determina en gran medida las posibilidades de éxito académico de los hijos.</div>
+    <h3>📌 Referencias al final del documento</h3>
+    <div class="apa-label">Libro</div>
+    <div class="apa-box">Sen, A. (1999). <em>Development as freedom</em>. Oxford University Press.</div>
+    <div class="apa-label">Artículo de revista científica</div>
+    <div class="apa-box">García, R., & López, M. (2018). Factores del rendimiento escolar en secundaria. <em>Revista Mexicana de Educación</em>, <em>15</em>(2), 40–58. https://doi.org/10.xxxx</div>
+    <div class="apa-label">Capítulo de libro editado</div>
+    <div class="apa-box">Bourdieu, P. (2001). El capital social. En R. Montes (Ed.), <em>Teorías de la desigualdad</em> (pp. 30–55). FCE.</div>
+    <div class="card green" style="margin-top:1rem;">
+      <h3>💡 Reglas rápidas APA 7</h3>
+      <ul>
+        <li>Usa <strong>&amp;</strong> entre autores dentro de paréntesis, y <strong>"y"</strong> en el texto corrido</li>
+        <li>3 o más autores: solo el primero seguido de <em>et al.</em> desde la primera cita</li>
+        <li>Sin "lugar de publicación" en libros (APA 7 lo eliminó)</li>
+        <li>DOI siempre que esté disponible, en formato de URL</li>
+        <li>Referencias en orden alfabético por apellido del primer autor</li>
+        <li>Sangría francesa en referencias</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="section" id="s3">
+    <h2>⚠️ Errores comunes — ¡Evítalos!</h2>
+    <p style="margin-bottom:1rem; color:#718096;">Haz clic en cada error para ver la explicación y cómo corregirlo.</p>
+    <div id="errors"></div>
+  </div>
+
+  <!-- S5 PLANTILLA CON PESTAÑAS -->
+  <div class="section" id="s4">
+    <h2>📋 Plantilla para tu Marco Teórico</h2>
+
+    <div class="plantilla-tabs">
+      <div class="ptab active" onclick="switchPtab('llenar')">
+        <span class="ptab-icon">✏️</span> Llenar plantilla
+      </div>
+      <div class="ptab" onclick="switchPtab('guia')">
+        <span class="ptab-icon">💡</span> Cómo llenar cada campo
+      </div>
+    </div>
+
+    <!-- Vista: llenar -->
+    <div class="pview active" id="pview-llenar">
+      <div class="card blue">
+        <div class="field-group">
+          <label>1. Mi hipótesis de investigación</label>
+          <textarea rows="3" placeholder="Escribe aquí tu hipótesis completa..."></textarea>
+          <div class="field-hint">Recuerda: debe ser una afirmación que propone una relación entre variables y que puede ser verificada.</div>
+        </div>
+      </div>
+      <div class="card blue">
+        <div class="field-group">
+          <label>2. Variables / conceptos clave que debo fundamentar teóricamente</label>
+          <input type="text" placeholder="Ej. nivel socioeconómico, rendimiento académico, zona rural...">
+          <div class="field-hint">Extráelos directamente de tu hipótesis.</div>
+        </div>
+      </div>
+      <div class="card blue">
+        <div class="field-group">
+          <label>3. Antecedentes — Estudios previos relacionados con mi tema</label>
+          <textarea rows="4" placeholder="Menciona investigaciones previas relevantes: qué estudiaron, qué encontraron y cómo se relacionan con tu hipótesis..."></textarea>
+          <div class="field-hint">Usa paráfrasis + cita APA 7. Ej: García (2020) encontró que...</div>
+        </div>
+      </div>
+      <div class="card blue">
+        <div class="field-group">
+          <label>4. Definición teórica del concepto 1</label>
+          <input type="text" placeholder="Nombre del concepto" style="margin-bottom:.5rem;">
+          <textarea rows="4" placeholder="Desarrolla la definición y explicación teórica, sustentada en al menos 2 fuentes académicas..."></textarea>
+        </div>
+      </div>
+      <div class="card blue">
+        <div class="field-group">
+          <label>5. Definición teórica del concepto 2</label>
+          <input type="text" placeholder="Nombre del concepto" style="margin-bottom:.5rem;">
+          <textarea rows="4" placeholder="Desarrolla la definición y explicación teórica, sustentada en al menos 2 fuentes académicas..."></textarea>
+        </div>
+      </div>
+      <div class="card blue">
+        <div class="field-group">
+          <label>6. Teoría o modelo principal que sustenta la relación entre mis variables</label>
+          <textarea rows="4" placeholder="¿Qué teoría explica la relación que planteas en tu hipótesis? Descríbela y cita su autor original..."></textarea>
+          <div class="field-hint">Ej: Teoría del Capital Cultural (Bourdieu, 1979), Teoría del Desarrollo Humano (Sen, 1999)...</div>
+        </div>
+      </div>
+      <div class="card blue">
+        <div class="field-group">
+          <label>7. Cierre: ¿Cómo sustenta este marco teórico mi hipótesis?</label>
+          <textarea rows="4" placeholder="Redacta un párrafo conclusivo que conecte explícitamente la teoría revisada con tu hipótesis..."></textarea>
+          <div class="field-hint">Esta es la parte más importante. Demuestra que el marco teórico justifica tu hipótesis.</div>
+        </div>
+      </div>
+      <div class="card blue">
+        <div class="field-group">
+          <label>8. Lista de referencias (formato APA 7)</label>
+          <textarea rows="6" placeholder="Escribe aquí todas tus referencias en orden alfabético...&#10;&#10;Autor, A. A. (año). Título del trabajo. Editorial.&#10;Autor, B. B., & Autor, C. C. (año). Título del artículo. Nombre de la Revista, volumen(número), páginas. https://doi.org/xxxx"></textarea>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+        <button class="btn secondary" onclick="clearPlantilla()">🗑️ Limpiar campos</button>
+      </div>
+    </div>
+
+    <!-- Vista: guía -->
+    <div class="pview" id="pview-guia">
+      <p style="margin-bottom:1rem; color:#718096; font-size:.9rem;">Haz clic en cada campo para ver cómo llenarlo y un ejemplo basado en una hipótesis de Ciencias Sociales.</p>
+      <div id="guide-items"></div>
+    </div>
+  </div>
+
+  <!-- S6 -->
+  <div class="section" id="s5">
+    <h2>🎯 Ejercicio práctico</h2>
+    <div class="card orange">
+      <h3>Hipótesis de trabajo</h3>
+      <p><em>"El uso frecuente de redes sociales en adolescentes está relacionado con niveles más altos de ansiedad social."</em></p>
+    </div>
+    <p style="margin: 1rem 0 .5rem;">Responde las siguientes preguntas basándote en la hipótesis anterior:</p>
+    <div id="quiz"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="checkQuiz()">✅ Verificar respuestas</button>
+      <button class="btn secondary" onclick="resetQuiz()">🔄 Intentar de nuevo</button>
+    </div>
+    <div class="card green" style="margin-top:1.5rem;">
+      <h3>📝 Actividad de redacción</h3>
+      <p>Con base en la hipótesis anterior, redacta un <strong>párrafo de marco teórico</strong> sobre el concepto de "ansiedad social". Recuerda:</p>
+      <ul>
+        <li>Usa paráfrasis, no copias textuales</li>
+        <li>Cita al menos una fuente en formato APA 7</li>
+        <li>Conecta al final con la hipótesis</li>
+      </ul>
+      <textarea rows="5" style="width:100%;margin-top:.8rem;border:1px solid #c6f6d5;border-radius:8px;padding:.7rem;font-family:inherit;font-size:.9rem;" placeholder="Escribe aquí tu párrafo..."></textarea>
+    </div>
+  </div>
+
+</div>
+
+<div id="nav-arrows">
+  <button class="nav-btn" id="btn-prev" onclick="navigate(-1)" disabled>‹</button>
+  <button class="nav-btn" id="btn-next" onclick="navigate(1)">›</button>
+</div>
+<button id="print-btn" onclick="window.print()">🖨️ Guardar PDF</button>
+
+<script>
+let current = 0;
+const total = 6;
+
+// ── Datos de guía de llenado ──
+const guideData = [
+  {
+    num: 1,
+    title: "Mi hipótesis de investigación",
+    what: "La hipótesis es la columna vertebral de tu marco teórico. Debe expresar una relación entre dos o más variables, ser verificable empíricamente y estar redactada como afirmación (no como pregunta).",
+    tips: [
+      "Incluye la variable independiente (causa) y la dependiente (efecto)",
+      "Delimita la población y el contexto",
+      "Evita redactarla como pregunta o como objetivo"
+    ],
+    example: "✏️ Ejemplo: \"El nivel socioeconómico de la familia influye negativamente en el rendimiento académico de los estudiantes de secundaria en zonas rurales de México.\"\n\n🔍 Variable independiente: nivel socioeconómico de la familia\n🎯 Variable dependiente: rendimiento académico\n📍 Contexto: estudiantes de secundaria en zonas rurales de México"
+  },
+  {
+    num: 2,
+    title: "Variables / conceptos clave",
+    what: "Identifica las palabras o frases centrales de tu hipótesis. Cada concepto que menciones aquí deberá tener una fundamentación teórica en los campos siguientes de la plantilla.",
+    tips: [
+      "Subraya los sustantivos principales de tu hipótesis",
+      "Generalmente son 2 o 3 conceptos por hipótesis",
+      "No incluyas palabras de enlace (influye, está relacionado, afecta...)"
+    ],
+    example: "✏️ Ejemplo a partir de la hipótesis anterior:\n\nConcepto 1 → Nivel socioeconómico\nConcepto 2 → Rendimiento académico\nConcepto 3 → Zonas rurales (contexto que también requiere sustento)"
+  },
+  {
+    num: 3,
+    title: "Antecedentes — Estudios previos",
+    what: "Los antecedentes demuestran que tu tema ya ha sido investigado y que tu estudio aporta algo nuevo. No es un resumen de libros: son investigaciones previas (tesis, artículos) que estudiaron algo similar a tu problema.",
+    tips: [
+      "Menciona qué investigaron, qué metodología usaron y qué encontraron",
+      "Señala en qué se parece y en qué se diferencia de tu investigación",
+      "Cita cada antecedente en APA 7",
+      "Usa al menos 3 antecedentes"
+    ],
+    example: "✏️ Ejemplo de redacción de un antecedente:\n\n\"Martínez y Ramos (2019) realizaron un estudio con 320 estudiantes de secundaria en Oaxaca, en el que identificaron que el ingreso familiar mensual es el predictor más significativo del promedio escolar, explicando el 43% de la varianza. Este hallazgo es relevante para la presente investigación porque estudia una población con características socioeconómicas similares, aunque difiere en el enfoque metodológico al emplear un diseño mixto.\"\n\n📌 Referencia: Martínez, J., & Ramos, L. (2019). Desigualdad económica y logro escolar en Oaxaca. Revista Latinoamericana de Educación, 12(1), 15–30. https://doi.org/10.xxxx"
+  },
+  {
+    num: 4,
+    title: "Definición teórica del concepto 1",
+    what: "Aquí desarrollas el primer concepto clave identificado en el campo 2. No copies definiciones de diccionarios: busca cómo lo definen los autores especializados y contrasta al menos dos perspectivas teóricas.",
+    tips: [
+      "Empieza con la definición más reconocida del concepto",
+      "Contrasta o complementa con otro autor",
+      "Explica cómo se medirá o entenderá ese concepto en TU investigación",
+      "Usa paráfrasis, no citas textuales largas"
+    ],
+    example: "✏️ Concepto: Nivel socioeconómico\n\n\"El nivel socioeconómico es una medida multidimensional que integra el ingreso familiar, el nivel educativo de los padres y la ocupación laboral del jefe de hogar (Ganzeboom et al., 1992). En el contexto latinoamericano, Filgueira (2007) agrega que la posesión de bienes materiales y el acceso a servicios básicos son indicadores igualmente determinantes. Para efectos de esta investigación, se adoptará un enfoque compuesto que considera el ingreso mensual del hogar, la escolaridad de los padres y el acceso a servicios como internet y materiales educativos.\""
+  },
+  {
+    num: 5,
+    title: "Definición teórica del concepto 2",
+    what: "Igual que el campo anterior, pero para el segundo concepto clave. Si tienes un tercer concepto relevante, puedes duplicar esta sección en tu documento final.",
+    tips: [
+      "Sigue la misma estructura: definición → contraste → aplicación en tu estudio",
+      "Busca al menos 2 fuentes especializadas en este concepto",
+      "Si hay debate entre autores sobre la definición, es una oportunidad para mostrar tu postura"
+    ],
+    example: "✏️ Concepto: Rendimiento académico\n\n\"El rendimiento académico se refiere al nivel de logro que alcanza un estudiante en las actividades escolares como resultado de un proceso de enseñanza-aprendizaje (Edel, 2003). Aunque frecuentemente se operacionaliza mediante la calificación promedio, autores como Garbanzo (2007) señalan que esta visión es reduccionista y que deben considerarse también factores cognitivos, motivacionales y contextuales. En esta investigación, el rendimiento se medirá a través del promedio de calificaciones del ciclo escolar vigente, reconociendo sus limitaciones como indicador único.\""
+  },
+  {
+    num: 6,
+    title: "Teoría o modelo principal",
+    what: "Aquí presentas la teoría que da el respaldo más sólido a tu hipótesis. No se trata de describir la teoría completa, sino de explicar qué aspectos de ella justifican la relación que propones entre tus variables.",
+    tips: [
+      "Cita al autor original de la teoría",
+      "Explica los postulados centrales relevantes para tu hipótesis",
+      "Muestra explícitamente cómo esos postulados apoyan tu hipótesis",
+      "Puedes mencionar una teoría secundaria o complementaria"
+    ],
+    example: "✏️ Ejemplo:\n\n\"La Teoría del Capital Cultural de Pierre Bourdieu (1979) constituye el fundamento teórico central de esta investigación. Bourdieu argumenta que las familias transmiten a sus hijos distintos tipos de capital — económico, cultural y social — que determinan sus trayectorias educativas. Los hijos de familias con mayor capital económico y cultural tienen más probabilidades de éxito escolar porque disponen de recursos materiales, hábitos de estudio y referencias simbólicas que el sistema educativo valora y premia. Este postulado sustenta directamente la hipótesis, al proponer que el nivel socioeconómico familiar — proxy del capital económico y cultural — se relaciona con el rendimiento académico de los hijos.\"\n\n📌 Referencia: Bourdieu, P. (1979). La distinción. Taurus."
+  },
+  {
+    num: 7,
+    title: "Cierre: conexión con la hipótesis",
+    what: "Este es el párrafo más importante del marco teórico. Aquí haces explícita la síntesis: la teoría y los conceptos revisados justifican la hipótesis. Si el lector solo leyera este párrafo, debería entender por qué tu hipótesis tiene sentido.",
+    tips: [
+      "No introduces nuevas fuentes aquí",
+      "Retoma brevemente los conceptos y la teoría del marco",
+      "Usa frases de conexión: 'En este sentido...', 'Lo anterior permite sostener que...', 'El sustento teórico revisado indica que...'",
+      "Termina citando textualmente tu hipótesis"
+    ],
+    example: "✏️ Ejemplo de párrafo de cierre:\n\n\"El sustento teórico revisado permite afirmar que la relación entre nivel socioeconómico y rendimiento académico no es azarosa, sino estructuralmente determinada. Desde la perspectiva del capital cultural (Bourdieu, 1979), las familias con mayores recursos económicos y educativos proveen a sus hijos de condiciones materiales y simbólicas que favorecen el aprendizaje escolar, ventajas que se acentúan en contextos rurales donde las desigualdades son más pronunciadas (Martínez & Ramos, 2019). En consecuencia, la evidencia teórica y empírica revisada sustenta la hipótesis de que el nivel socioeconómico de la familia influye negativamente en el rendimiento académico de los estudiantes de secundaria en zonas rurales de México.\""
+  },
+  {
+    num: 8,
+    title: "Lista de referencias (APA 7)",
+    what: "La lista de referencias incluye TODAS las fuentes citadas en el cuerpo del texto, ordenadas alfabéticamente por el apellido del primer autor. En APA 7 ya no se incluye el lugar de publicación en los libros.",
+    tips: [
+      "Usa sangría francesa (la segunda línea de cada referencia va sangrada)",
+      "Si hay DOI disponible, inclúyelo siempre como URL",
+      "Para libros: Apellido, Inicial. (año). Título en cursivas. Editorial.",
+      "Para artículos: Apellido, I., & Apellido2, I2. (año). Título del artículo. Revista en cursivas, volumen(número), pp–pp. https://doi.org/xxx",
+      "Verifica cada referencia antes de entregarla"
+    ],
+    example: "✏️ Ejemplos correctos en APA 7:\n\nBourdieu, P. (1979). La distinción: criterios y bases sociales del gusto. Taurus.\n\nEdel, R. (2003). El rendimiento académico: concepto, investigación y desarrollo. Revista Electrónica Iberoamericana sobre Calidad, Eficacia y Cambio en Educación, 1(2), 1–15. https://doi.org/10.xxxx\n\nMartínez, J., & Ramos, L. (2019). Desigualdad económica y logro escolar en Oaxaca. Revista Latinoamericana de Educación, 12(1), 15–30. https://doi.org/10.xxxx"
+  }
+];
+
+// Render guía
+const guideContainer = document.getElementById('guide-items');
+guideData.forEach((g, i) => {
+  guideContainer.innerHTML += `
+    <div class="guide-item">
+      <div class="guide-header" onclick="toggleGuide(${i})">
+        <div class="guide-header-left">
+          <div class="guide-num">${g.num}</div>
+          <span class="gtitle">${g.title}</span>
+        </div>
+        <span class="guide-arrow" id="garrow-${i}">▶</span>
+      </div>
+      <div class="guide-body" id="gbody-${i}">
+        <p class="guide-what">${g.what}</p>
+        <p style="font-size:.82rem;font-weight:600;color:#4a5568;margin-bottom:.3rem;">💡 Consejos:</p>
+        <ul class="guide-tips">${g.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+        <div class="example-label">📖 Ejemplo redactado</div>
+        <div class="example-box">${g.example.replace(/\n/g,'<br>')}</div>
+      </div>
+    </div>`;
+});
+
+function toggleGuide(i) {
+  const body = document.getElementById(`gbody-${i}`);
+  const arrow = document.getElementById(`garrow-${i}`);
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function switchPtab(view) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pview').forEach(v => v.classList.remove('active'));
+  document.getElementById(`pview-${view}`).classList.add('active');
+  const idx = view === 'llenar' ? 0 : 1;
+  document.querySelectorAll('.ptab')[idx].classList.add('active');
+}
+
+// Errors
+const errors = [
+  { title:"Copiar y pegar párrafos completos", badge:"Plagio / Sin análisis", wrong:"Se copian párrafos enteros de libros o artículos sin parafrasear ni analizar.", right:"Lee el texto, comprende la idea y exprésala con tus propias palabras. Si necesitas citar textualmente, hazlo con comillas y la referencia APA 7 correcta." },
+  { title:"No conectar el marco con la hipótesis", badge:"Desarticulación", wrong:"El texto incluye teorías interesantes pero no queda claro por qué están ahí ni cómo apoyan la hipótesis.", right:"Cada apartado debe cerrar con una oración que conecte explícitamente lo revisado con la hipótesis." },
+  { title:"Usar fuentes no académicas", badge:"Fuente no confiable", wrong:"Se citan Wikipedia, páginas de divulgación, blogs o libros de texto de preparatoria.", right:"Usa artículos de revistas científicas arbitradas, libros académicos y tesis de posgrado. Verifica en Redalyc, Dialnet, JSTOR, Scopus." },
+  { title:"Citas sin referencia o referencias sin cita", badge:"Error APA 7", wrong:"Se menciona (García, 2020) en el texto pero no aparece en la lista de referencias, o viceversa.", right:"Toda cita en el texto DEBE tener su referencia completa al final, y toda referencia debe estar citada en el texto." },
+  { title:"Estructura tipo glosario", badge:"Sin argumentación", wrong:"El marco es una lista de definiciones sin análisis ni conexión entre sí.", right:"Organiza el marco en subtítulos temáticos y redacta párrafos argumentativos. Las definiciones deben integrarse en un discurso académico coherente." },
+  { title:"Usar solo una fuente por concepto", badge:"Débil sustento", wrong:"Cada variable o concepto solo se apoya en un autor, lo que hace el marco frágil.", right:"Contrasta al menos 2-3 fuentes por concepto clave. Puedes mostrar acuerdo o divergencia y tomar una postura argumentada." },
+  { title:"No usar APA 7 correctamente", badge:"Error de formato", wrong:"Se mezclan estilos (APA 6, Vancouver, notas al pie) o se omite el DOI.", right:"Aplica APA 7 consistentemente: sin lugar editorial en libros, DOI como URL, 'et al.' desde el primer uso con 3+ autores." }
+];
+
+const errContainer = document.getElementById('errors');
+errors.forEach((e, i) => {
+  errContainer.innerHTML += `
+    <div class="error-item">
+      <div class="error-header" onclick="toggleError(${i})">
+        <span>❌ ${e.title}</span>
+        <span class="badge-err">${e.badge}</span>
+      </div>
+      <div class="error-body" id="err-${i}">
+        <p><strong>El error:</strong> ${e.wrong}</p>
+        <p style="margin-top:.5rem;"><strong>✅ Cómo corregirlo:</strong> ${e.right}</p>
+      </div>
+    </div>`;
+});
+
+function toggleError(i) { document.getElementById(`err-${i}`).classList.toggle('open'); }
+
+// Quiz
+const quizData = [
+  { q:"¿Cuáles son los dos conceptos clave que debes fundamentar teóricamente en esta hipótesis?", opts:["Adolescentes y escuelas","Redes sociales y ansiedad social","Internet y salud mental","Tecnología y adolescencia"], correct:1, explain:"Correcto. Los conceptos centrales son 'redes sociales' (variable independiente) y 'ansiedad social' (variable dependiente). Ambos deben estar definidos y sustentados teóricamente." },
+  { q:"¿Qué tipo de fuente es más adecuada para sustentar esta hipótesis?", opts:["Un artículo de revista de psicología indexada","Un post de Instagram de un psicólogo","Una nota periodística de un diario nacional","El artículo de Wikipedia sobre ansiedad"], correct:0, explain:"Correcto. Las revistas científicas arbitradas son la fuente más confiable. Busca en PsycINFO, Redalyc o Dialnet artículos sobre redes sociales y salud mental en adolescentes." },
+  { q:"¿Cuál de las siguientes opciones es una paráfrasis correcta en APA 7?", opts:["'Las redes sociales generan ansiedad en los jóvenes.' (sin cita)","Los adolescentes que usan más redes sociales reportan mayor ansiedad social (Twenge & Campbell, 2019).","Como dijo el autor: 'las redes sociales son dañinas para los jóvenes' (Twenge, 2019, p.5)","Twenge (2019) dijo que las redes sociales son malas."], correct:1, explain:"Correcto. Una buena paráfrasis expresa la idea con tus propias palabras, incluye (Autor, año) y no usa comillas ni expresiones informales." },
+  { q:"¿Qué estructura temática sería más adecuada para el marco teórico de esta hipótesis?", opts:["Historia de internet → redes populares → memes","Antecedentes → Definición de redes sociales → Definición de ansiedad social → Teorías → Estudios previos","Una sección por cada autor consultado","Una introducción general sobre salud mental en el mundo"], correct:1, explain:"Correcto. La estructura por ejes temáticos permite desarrollar cada concepto y mostrar la relación teórica entre ellos, conectando con la hipótesis." }
+];
+
+const quizContainer = document.getElementById('quiz');
+quizData.forEach((q, i) => {
+  quizContainer.innerHTML += `
+    <div class="quiz-q">
+      <p>${i+1}. ${q.q}</p>
+      ${q.opts.map((o,j)=>`<label class="quiz-opt"><input type="radio" name="q${i}" value="${j}"> ${o}</label>`).join('')}
+      <div class="quiz-feedback" id="fb-${i}"></div>
+    </div>`;
+});
+
+function checkQuiz() {
+  quizData.forEach((q, i) => {
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    const fb = document.getElementById(`fb-${i}`);
+    if (!sel) { fb.className='quiz-feedback wrong'; fb.textContent='⚠️ Por favor selecciona una opción.'; return; }
+    if (parseInt(sel.value)===q.correct) { fb.className='quiz-feedback correct'; fb.textContent='✅ '+q.explain; }
+    else { fb.className='quiz-feedback wrong'; fb.textContent='❌ Respuesta incorrecta. Revisa los conceptos y vuelve a intentarlo.'; }
+  });
+}
+
+function resetQuiz() {
+  document.querySelectorAll('input[type="radio"]').forEach(r=>r.checked=false);
+  document.querySelectorAll('.quiz-feedback').forEach(f=>{f.className='quiz-feedback';f.textContent='';});
+}
+
+function clearPlantilla() {
+  if (confirm('¿Deseas limpiar todos los campos de la plantilla?'))
+    document.querySelectorAll('#pview-llenar textarea, #pview-llenar input[type="text"]').forEach(el=>el.value='');
+}
+
+function goTo(n) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('#tabs .tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(`s${n}`).classList.add('active');
+  document.querySelectorAll('#tabs .tab')[n].classList.add('active');
+  current = n;
+  updateUI();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function navigate(dir) { const n=current+dir; if(n>=0&&n<total) goTo(n); }
+
+function updateUI() {
+  document.getElementById('progress-bar').style.width=`${((current+1)/total)*100}%`;
+  document.getElementById('step-indicator').textContent=`Paso ${current+1} de ${total}`;
+  document.getElementById('btn-prev').disabled=current===0;
+  document.getElementById('btn-next').disabled=current===total-1;
+}
+
+updateUI();
+</script>
+</body>
+</html>
